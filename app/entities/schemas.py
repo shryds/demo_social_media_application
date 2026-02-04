@@ -12,6 +12,10 @@ class Post(BaseModel):
     class Config:
         orm_mode = True
 
+class PostCreate(BaseModel):
+    title:str
+    content:str 
+
 class UserCreate(BaseModel):
     email: EmailStr
     password:str
