@@ -4,6 +4,7 @@ from routers.users import user_router
 from services.database import engine
 from entities.models import Base
 
+
 app= FastAPI()
 
 @app.get("/")
