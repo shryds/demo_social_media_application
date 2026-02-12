@@ -17,3 +17,7 @@ def create_access_token(data):
     return token
     
     
+def decode_token(jwt_token: str):
+    decoded_token= jwt.decode(jwt_token,SECRET_KEY,ALG)
+    return decoded_token
+

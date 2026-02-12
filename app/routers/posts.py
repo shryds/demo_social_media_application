@@ -24,7 +24,6 @@ async def create_post(new_post:PostCreate,db: Session=Depends(get_db)):
 
 @post_router.get("/{id}", response_model= PostGet)
 async def get_post(id:int,db: Session=Depends(get_db)):
-    db=get_db()
     stmt = select(models.Posts).filter(models.Posts.id == id)
     post = db.scalar(stmt)
     return post
