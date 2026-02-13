@@ -10,6 +10,9 @@ from services.auth import decode_token
 
 async def auth_middleware( request: Request):
     authorization_header = request.headers.get('Authorization')
+    if authorization_header == None:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="authorization only not there")
+
     token= authorization_header.split()[1]
     try:
         auth_data=decode_token(token)        

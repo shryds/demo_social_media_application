@@ -38,4 +38,8 @@ class AuthToken(BaseModel):
     token:str
 
     
-
+class UpdatePassword(BaseModel):
+    email:EmailStr
+    old_pass:str
+    new_pass:str
+    
