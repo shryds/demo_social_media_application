@@ -6,7 +6,7 @@ from exceptiongroup import catch
 from fastapi import HTTPException, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from services.auth import decode_token
+from app.services.auth import decode_token
 
 async def auth_middleware( request: Request):
     authorization_header = request.headers.get('Authorization')

@@ -2,9 +2,9 @@ from http import HTTPStatus
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
-from entities import models
-from services.database import get_db
-from entities.schemas import PostCreate, PostGet
+from app.entities import models
+from app.services.database import get_db
+from app.entities.schemas import PostCreate, PostGet
 from sqlalchemy.orm import Session
 
 post_router=APIRouter(prefix="/post")

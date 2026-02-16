@@ -1,5 +1,6 @@
+import email
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey,Boolean,TIMESTAMP,text
-from services.database import Base
+from app.services.database import Base
 
 class Posts(Base):
     __tablename__='posts'
@@ -9,6 +10,8 @@ class Posts(Base):
     content = Column(String, nullable=False)
     published = Column(Boolean, server_default="TRUE", nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable =False, server_default=text('now()'))
+    user_id= Column(Integer,ForeignKey("users.id"), nullable=False )
+    
 
 class User(Base):
     __tablename__="users"

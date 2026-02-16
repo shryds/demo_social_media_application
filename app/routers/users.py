@@ -6,12 +6,12 @@ import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import EmailStr
 from sqlalchemy import delete, select
-from middlewares.auth import auth_middleware
-from services.auth import create_access_token
-from entities import models
-from entities.models import User
-from entities.schemas import AuthToken, UpdatePassword, UserCreate, UserGet
-from services.database import get_db
+from app.middlewares.auth import auth_middleware
+from app.services.auth import create_access_token
+from app.entities import models
+from app.entities.models import User
+from app.entities.schemas import AuthToken, UpdatePassword, UserCreate, UserGet
+from app.services.database import get_db
 from passlib.hash import bcrypt
 from sqlalchemy.orm import Session
 user_router=APIRouter(prefix="/user")
@@ -19,7 +19,18 @@ user_router_protected = APIRouter(
     prefix="/user",
     tags=["protected"],dependencies=[Depends(auth_middleware)],
 )
+@user_router.post("/login", response_model=AuthToken)
+async def login(login_info:UserCreate,db: Session=Depends(get_db)):
+    stmt = select(models.User).filter(models.User.email == login_info.email)
+    user = db.scalar(stmt)
+    
+    if(user == None):
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="user not registered")
 
+    if(not(bcrypt.verify(login_info.password,user.password))):
+        raise HTTPException(status_code= HTTPStatus.BAD_REQUEST, detail="pswed net metching")
+
+    return {"token":create_access_token({"userID":user.id,"email":user.email})}
 
 @user_router.get("/all", response_model=List[UserGet])
 async def get_user(db: Session=Depends(get_db)):
@@ -44,13 +55,6 @@ async def get_user(id:int, request:Request,db: Session=Depends(get_db)):
 
     return user
 
-@user_router.post("/login", response_model=AuthToken)
-async def login(login_info:UserCreate,db: Session=Depends(get_db)):
-    stmt = select(models.User).filter(models.User.email == login_info.email)
-    user = db.scalar(stmt)
-    if(not(bcrypt.verify(login_info.password,user.password))):
-        raise HTTPException(status_code= HTTPStatus.BAD_REQUEST, detail="pswed net metching")
-    return {"token":create_access_token({"userID":user.id,"email":user.email})}
 
 @user_router_protected.delete("/{id}" ,status_code=HTTPStatus.NO_CONTENT)
 async def delete_user(id:int,request:Request,db:Session=Depends(get_db)):

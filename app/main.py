@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from routers.posts import post_router
-from routers.users import user_router, user_router_protected
-from services.database import engine
-from entities.models import Base
+from app.routers.posts import post_router
+from app.routers.users import user_router, user_router_protected
+from app.services.database import engine
+from app.entities.models import Base
 
 
 app= FastAPI()
