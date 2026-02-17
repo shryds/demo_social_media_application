@@ -1,6 +1,6 @@
-import email
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey,Boolean,TIMESTAMP,text
 from app.services.database import Base
+from sqlalchemy.orm import relationship
 
 class Posts(Base):
     __tablename__='posts'
@@ -11,7 +11,7 @@ class Posts(Base):
     published = Column(Boolean, server_default="TRUE", nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable =False, server_default=text('now()'))
     user_id= Column(Integer,ForeignKey("users.id"), nullable=False )
-    
+    user = relationship("User")
 
 class User(Base):
     __tablename__="users"

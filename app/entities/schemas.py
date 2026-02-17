@@ -1,7 +1,20 @@
 import datetime
-import email
 from pydantic import BaseModel, EmailStr
 from passlib.hash import bcrypt
+
+class UserGet(BaseModel):
+    id:int
+    email:EmailStr
+    created_at:datetime.datetime
+
+    class Config:
+        orm_mode = True
+
+class UserGetEmail(BaseModel):
+    email:EmailStr
+
+    class Config:
+        orm_mode = True
 
 
 class PostGet(BaseModel):
@@ -10,6 +23,7 @@ class PostGet(BaseModel):
     content:str  
     published:bool 
     created_at: datetime.datetime
+    user: UserGetEmail
     
     class Config:
         orm_mode = True
@@ -24,14 +38,6 @@ class UserCreate(BaseModel):
     def hash_pwd(self):
         self.password=bcrypt.hash(self.password)
         return self
-
-class UserGet(BaseModel):
-    id:int
-    email:EmailStr
-    created_at:datetime.datetime
-
-    class Config:
-        orm_mode = True
 
 
 class AuthToken(BaseModel):

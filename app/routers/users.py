@@ -19,6 +19,8 @@ user_router_protected = APIRouter(
     prefix="/user",
     tags=["protected"],dependencies=[Depends(auth_middleware)],
 )
+
+
 @user_router.post("/login", response_model=AuthToken)
 async def login(login_info:UserCreate,db: Session=Depends(get_db)):
     stmt = select(models.User).filter(models.User.email == login_info.email)
