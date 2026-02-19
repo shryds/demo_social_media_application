@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey,Boolean,TIMESTAMP,text
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey,Boolean,TIMESTAMP, null,text
 from app.services.database import Base
 from sqlalchemy.orm import relationship
 
@@ -11,6 +11,8 @@ class Posts(Base):
     published = Column(Boolean, server_default="TRUE", nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable =False, server_default=text('now()'))
     user_id= Column(Integer,ForeignKey("users.id"), nullable=False )
+    likes=Column(Integer,nullable=False,server_default="0")
+
     user = relationship("User")
 
 class User(Base):
@@ -20,3 +22,9 @@ class User(Base):
     password = Column(String, unique=True)
     id = Column(Integer, primary_key=True, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable =False, server_default=text('now()') )
+
+class Like(Base):
+    __tablename__="likes"
+
+    post_id=Column(Integer,ForeignKey("posts.id"),nullable=False,primary_key=True)
+    user_id=Column(Integer,ForeignKey("users.id"), nullable=False,primary_key=True)
