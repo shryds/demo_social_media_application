@@ -48,4 +48,17 @@ class UpdatePassword(BaseModel):
     email:EmailStr
     old_pass:str
     new_pass:str
+
+class CommentCreate(BaseModel):
+    comment:str
     
+class GetComments(BaseModel):
+    id:int
+    commenter_id:int
+    comment:str
+    post_id:int
+    created_at:datetime.datetime
+    user: UserGetEmail
+    
+    class Config:
+        orm_mode = True

@@ -1,16 +1,11 @@
 from http import HTTPStatus
-from http.client import NON_AUTHORITATIVE_INFORMATION
-from sqlite3 import dbapi2
-from tkinter import S
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pkg_resources import require
-from pydantic import PydanticSchemaGenerationError
 from sqlalchemy import delete, select
 from app.entities import models
 from app.middlewares.auth import auth_middleware
 from app.services.database import get_db
-from app.entities.schemas import PostCreate, PostGet
+from app.entities.schemas import CommentCreate, GetComments, PostCreate, PostGet
 from sqlalchemy.orm import Session
 
 post_router=APIRouter(prefix="/post")
@@ -109,3 +104,56 @@ async def all_likes(id: int, db:Session=Depends(get_db)):
     likes=db.query(models.Like).filter(models.Like.post_id==id).all()
 
     return [row.user_id for row in likes]
+
+@post_router_protected.post("/{id}/comment")
+async def post_comment(new_comment:CommentCreate,request:Request, id:int ,db:Session=Depends(get_db)):
+    auth_user_id=request.state.auth_data["userID"]
+    post=db.query(models.Posts).filter(models.Posts.id==id).first()
+    if not post:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST)
+    comment= models.Comment(**new_comment.dict())
+    comment.commenter_id = auth_user_id
+    comment.post_id=post.id
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+    return None
+
+@post_router.get("/{id}/comments/all", response_model= List[GetComments])
+async def get_comments(id:int,db: Session=Depends(get_db)):
+    post=db.query(models.Posts).filter(models.Posts.id==id).first()
+    if not post:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST)
+    items= db.query(models.Comment).filter(models.Comment.post_id==id).all()
+    return items
+
+@post_router_protected.delete("/comment/{id}")
+async def delete_comment(id:int, request:Request,db:Session=Depends(get_db)):
+    auth_user=request.state.auth_data["userID"]
+    comment=db.query(models.Comment).filter(models.Comment.id==id).first()
+    if not comment:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST)
+    post_id=comment.post_id
+    post=db.query(models.Posts).filter(models.Posts.id==post_id).first()
+    creator=post.user_id
+
+    if auth_user!=comment.commenter_id and auth_user!=creator :
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
+    
+    stmt=delete(models.Comment).where(models.Comment.id==id)
+    db.execute(stmt)
+    db.commit()
+    return None
+
+@post_router_protected.patch("/comment/{id}")
+async def update_comment(updated_comment:CommentCreate,id:int,request:Request,db:Session=Depends(get_db)):
+    auth_id=request.state.auth_data["userID"]
+    comment=db.query(models.Comment).filter(models.Comment.id==id).first()
+    if not comment:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST)
+    if auth_id!=comment.commenter_id:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
+     
+    db.query(models.Comment).filter(models.Comment.id==id).update({"comment":updated_comment.comment})
+    db.commit()
+    return updated_comment

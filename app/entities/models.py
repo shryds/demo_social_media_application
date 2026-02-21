@@ -12,7 +12,6 @@ class Posts(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable =False, server_default=text('now()'))
     user_id= Column(Integer,ForeignKey("users.id"), nullable=False )
     likes=Column(Integer,nullable=False,server_default="0")
-
     user = relationship("User")
 
 class User(Base):
@@ -28,3 +27,14 @@ class Like(Base):
 
     post_id=Column(Integer,ForeignKey("posts.id"),nullable=False,primary_key=True)
     user_id=Column(Integer,ForeignKey("users.id"), nullable=False,primary_key=True)
+
+class Comment(Base):
+    __tablename__="comments"
+
+    id=Column(Integer, primary_key=True, nullable=False)
+    post_id=Column(Integer, ForeignKey("posts.id"), nullable=False)
+    commenter_id=Column(Integer, ForeignKey("users.id"), nullable=False)
+    comment=Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable =False, server_default=text('now()') )
+    user = relationship("User")
+

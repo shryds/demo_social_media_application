@@ -8,7 +8,7 @@ load_dotenv()
 SECRET_KEY=os.environ.get("SECRET_KEY")
 
 ALG="HS256"
-EXPIRY_TIME = 30
+EXPIRY_TIME = 40000
 
 def create_access_token(data):
     expire = datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(minutes=EXPIRY_TIME)    
