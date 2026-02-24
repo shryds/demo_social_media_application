@@ -1,12 +1,14 @@
 from http import HTTPStatus
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request
+from typing import Annotated, List, Optional
+from fastapi import APIRouter, Depends, Form, HTTPException, Request,UploadFile,File
 from sqlalchemy import delete, select
 from app.entities import models
 from app.middlewares.auth import auth_middleware
 from app.services.database import get_db
 from app.entities.schemas import CommentCreate, GetComments, PostCreate, PostGet
 from sqlalchemy.orm import Session
+
+from app.services.image import store_file
 
 post_router=APIRouter(prefix="/post")
 
@@ -21,12 +23,26 @@ async def get_posts(db: Session=Depends(get_db)):
     return items
 
 @post_router_protected.post("/" ,status_code=HTTPStatus.CREATED)
-async def create_post(new_post:PostCreate,request:Request, db: Session=Depends(get_db)):
+async def create_post(
+    title:Annotated[str, Form()],
+    content:Annotated[str, Form()],
+    request:Request, 
+    file:Optional[UploadFile] = None ,
+    db: Session=Depends(get_db)
+):
     user_id=request.state.auth_data["userID"]
     #if not user_id:
         #raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="token issue")
-    post= models.Posts(**new_post.dict())
-    post.user_id = user_id
+    
+    new_post={
+        "title":title,
+        "content":content,
+        "img_path":await store_file(file),
+        "user_id":user_id
+    }
+    # new_post.content=content
+    # new_post.title=title
+    post= models.Posts(**new_post)
     db.add(post)
     db.commit()
     db.refresh(post)

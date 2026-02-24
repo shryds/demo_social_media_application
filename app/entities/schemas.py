@@ -31,6 +31,7 @@ class PostGet(BaseModel):
 class PostCreate(BaseModel):
     title:str
     content:str 
+    
 
 class UserCreate(BaseModel):
     email: EmailStr

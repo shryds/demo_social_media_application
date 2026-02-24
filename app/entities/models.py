@@ -13,6 +13,7 @@ class Posts(Base):
     user_id= Column(Integer,ForeignKey("users.id"), nullable=False )
     likes=Column(Integer,nullable=False,server_default="0")
     user = relationship("User")
+    img_path=Column(String,unique=True)
 
 class User(Base):
     __tablename__="users"
