@@ -8,7 +8,7 @@ from app.services.database import get_db
 from app.entities.schemas import CommentCreate, GetComments, PostCreate, PostGet
 from sqlalchemy.orm import Session
 
-from app.services.image import store_file
+from app.services.s3 import store_file
 
 post_router=APIRouter(prefix="/post")
 
@@ -34,10 +34,12 @@ async def create_post(
     #if not user_id:
         #raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="token issue")
     
+    img_path=None if file == None else await store_file(file)  
+    
     new_post={
         "title":title,
         "content":content,
-        "img_path":await store_file(file),
+        "img_path":img_path,
         "user_id":user_id
     }
     # new_post.content=content

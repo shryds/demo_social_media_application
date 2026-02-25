@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 from passlib.hash import bcrypt
 
@@ -24,11 +25,13 @@ class PostGet(BaseModel):
     published:bool 
     created_at: datetime.datetime
     user: UserGetEmail
+    likes:int
+    img_path:Optional[str] = None 
     
     class Config:
         orm_mode = True
 
-class PostCreate(BaseModel):
+class PostCreate(BaseModel): #no longer using because of form data
     title:str
     content:str 
     
