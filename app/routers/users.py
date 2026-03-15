@@ -83,9 +83,15 @@ async def update_password(user_info:UpdatePassword,request:Request,db:Session=De
     db.commit()
     return None
 
+@user_router_protected.get("/me")
+async def update_password(request:Request):
+    auth_email=request.state.auth_data["email"]
+    auth_id=request.state.auth_data["userID"]
 
-
-    
+    return {
+        "email":auth_email,
+        "user_id":auth_id
+    }
     
         
 

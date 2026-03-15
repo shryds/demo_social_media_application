@@ -14,7 +14,7 @@ post_router=APIRouter(prefix="/post")
 
 post_router_protected = APIRouter(
     prefix="/post",
-    tags=["protected"],dependencies=[Depends(auth_middleware)],
+    tags=["protected"], dependencies=[Depends(auth_middleware)],
 )
 
 @post_router.get("/all", response_model= List[PostGet])
