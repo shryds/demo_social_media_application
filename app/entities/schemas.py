@@ -27,7 +27,12 @@ class PostGet(BaseModel):
     user: UserGetEmail
     likes:int
     img_path:Optional[str] = None 
-    
+
+    class Config:
+        orm_mode = True
+
+class PostGetUser(PostGet):
+    isLiked:bool
     class Config:
         orm_mode = True
 
@@ -66,3 +71,4 @@ class GetComments(BaseModel):
     
     class Config:
         orm_mode = True
+

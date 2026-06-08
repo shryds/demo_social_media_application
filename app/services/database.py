@@ -1,5 +1,9 @@
+import logging
+
 from sqlalchemy import create_engine,text
 from sqlalchemy.orm import sessionmaker , declarative_base
+
+logger = logging.getLogger(__name__)
 
 Base=declarative_base()
 DATABASE_URL = "postgresql://postgres:postgres@localhost/something"
@@ -9,11 +13,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 try:
     with engine.connect() as connection:
         result = connection.execute(text("SELECT version();"))
-        print("Connection successful! PostgreSQL version:")
-        for row in result:
-            print(row[0])
+        version = result.scalar()
+        logger.info("Database connection established (PostgreSQL version: %s)", version)
 except Exception as e:
-    print(f"Connection failed: {e}")
+    logger.error("Database connection failed: %s", e)
 
 def get_db():
     db = SessionLocal()

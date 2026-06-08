@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import logging
 import os
 import uuid
 import aiofiles
@@ -8,6 +9,8 @@ from sqlalchemy import exists
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 AWS_REGION=os.environ.get("AWS_REGION")
 AWS_BUCKET_NAME=os.environ.get("S3_BUCKET")
@@ -23,7 +26,7 @@ def build_s3_url(bucket: str, region: str, key: str) -> str:
 
 async def store_file(file:UploadFile):
     if file.content_type not in ["image/jpeg","image/png","image/gif"]:
-        raise HTTPException(status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+        raise HTTPException(status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE, detail="Unsupported file type. Only JPEG, PNG and GIF images are allowed")
     file_extention=file.filename.split(".")[-1]
     file_name=f"{uuid.uuid4()}.{file_extention}"
     
@@ -41,7 +44,8 @@ async def store_file(file:UploadFile):
         )
         
     except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=e)
+        logger.error("Failed to upload file to S3: %s", e)
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Failed to upload file")
     finally:
         await file.close()
     return build_s3_url(AWS_BUCKET_NAME, AWS_REGION, file_name)

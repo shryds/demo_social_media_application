@@ -20,7 +20,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message":"elle"}
+    return {"status": "ok", "message": "API is running"}
 
 Base.metadata.create_all(engine)
 
