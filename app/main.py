@@ -7,8 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app= FastAPI()
 
-origins = ["*"]
-
+origins = [
+    "http://localhost:5173",
+    "https://demo-social-media-ui.vercel.app",
+]
 
 app.add_middleware(
     CORSMiddleware,
